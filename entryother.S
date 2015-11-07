@@ -20,8 +20,8 @@
 # This code combines elements of bootasm.S and entry.S.
 
 .code16           
-.globl start
-start:
+.globl startother
+startother:
   cli            
 
   # Zero data segment registers DS, ES, and SS.
@@ -41,11 +41,11 @@ start:
   # Complete the transition to 32-bit protected mode by using a long jmp
   # to reload %cs and %eip.  The segment descriptors are set up with no
   # translation, so that the mapping is still the identity mapping.
-  ljmpl    $(SEG_KCODE<<3), $(start32)
+  ljmpl    $(SEG_KCODE<<3), $(startother32)
 
 //PAGEBREAK!
 .code32  # Tell assembler to generate 32-bit code now.
-start32:
+startother32:
   # Set up the protected-mode data segment registers
   movw    $(SEG_KDATA<<3), %ax    # Our data segment selector
   movw    %ax, %ds                # -> DS: Data Segment
@@ -59,8 +59,8 @@ start32:
   movl    %cr4, %eax
   orl     $(CR4_PSE), %eax
   movl    %eax, %cr4
-  # Use entrypgdir as our initial page table
-  movl    (start-12), %eax
+  # Use enterpgdir as our initial page table
+  movl    (startother-12), %eax
   movl    %eax, %cr3
   # Turn on paging.
   movl    %cr0, %eax
@@ -68,9 +68,9 @@ start32:
   movl    %eax, %cr0
 
   # Switch to the stack allocated by startothers()
-  movl    (start-4), %esp
+  movl    (startother-4), %esp
   # Call mpenter()
-  call	 *(start-8)
+  call	 *(startother-8)
 
   movw    $0x8a00, %ax
   movw    %ax, %dx

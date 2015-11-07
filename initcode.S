@@ -6,8 +6,8 @@
 
 
 # exec(init, argv)
-.globl start
-start:
+.globl init_start
+init_start:
   pushl $argv
   pushl $init
   pushl $0  // where caller pc would be
