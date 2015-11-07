@@ -4,6 +4,8 @@
 #include "syscall.h"
 #include "traps.h"
 
+# proc.c copies this file's code and puts it in virtual memory address 0,
+# and begins executing the first bytes (regardless of symbol name, etc). 
 
 # exec(init, argv)
 .globl init_start
