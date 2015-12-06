@@ -17,7 +17,7 @@
 int
 fetchint(uint addr, int *ip)
 {
-  if(addr >= proc->sz || addr+4 > proc->sz)
+  if(addr >= cproc->sz || addr+4 > cproc->sz)
     return -1;
   *ip = *(int*)(addr);
   return 0;
@@ -31,10 +31,10 @@ fetchstr(uint addr, char **pp)
 {
   char *s, *ep;
 
-  if(addr >= proc->sz)
+  if(addr >= cproc->sz)
     return -1;
   *pp = (char*)addr;
-  ep = (char*)proc->sz;
+  ep = (char*)cproc->sz;
   for(s = *pp; s < ep; s++)
     if(*s == 0)
       return s - *pp;
@@ -45,7 +45,7 @@ fetchstr(uint addr, char **pp)
 int
 argint(int n, int *ip)
 {
-  return fetchint(proc->tf->esp + 4 + 4*n, ip);
+  return fetchint(cproc->tf->esp + 4 + 4*n, ip);
 }
 
 // Fetch the nth word-sized system call argument as a pointer
@@ -58,7 +58,7 @@ argptr(int n, char **pp, int size)
   
   if(argint(n, &i) < 0)
     return -1;
-  if((uint)i >= proc->sz || (uint)i+size > proc->sz)
+  if((uint)i >= cproc->sz || (uint)i+size > cproc->sz)
     return -1;
   *pp = (char*)i;
   return 0;
@@ -127,6 +127,7 @@ void
 syscall(void)
 {
   int num;
+  struct proc* proc = cproc;
 
   num = proc->tf->eax;
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {

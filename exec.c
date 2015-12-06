@@ -17,6 +17,7 @@ exec(char *path, char **argv)
   struct inode *ip;
   struct proghdr ph;
   pde_t *pgdir, *oldpgdir;
+  struct proc *proc;
 
   begin_op();
   if((ip = namei(path)) == 0){
@@ -80,6 +81,7 @@ exec(char *path, char **argv)
   if(copyout(pgdir, sp, ustack, (3+argc+1)*4) < 0)
     goto bad;
 
+  proc = cproc;
   // Save program name for debugging.
   for(last=s=path; *s; s++)
     if(*s == '/')

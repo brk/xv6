@@ -22,7 +22,7 @@ seginit(void)
   // Cannot share a CODE descriptor for both kernel and user
   // because it would have to have DPL_USR, but the CPU forbids
   // an interrupt from CPL=0 to DPL=3.
-  c = &cpus[cpunum()];
+  c = ccpu; 
   c->gdt[SEG_KCODE] = SEG(STA_X|STA_R, 0, 0xffffffff, 0);
   c->gdt[SEG_KDATA] = SEG(STA_W, 0, 0xffffffff, 0);
   c->gdt[SEG_UCODE] = SEG(STA_X|STA_R, 0, 0xffffffff, DPL_USER);
@@ -32,11 +32,8 @@ seginit(void)
   c->gdt[SEG_KCPU] = SEG(STA_W, &c->cpu, 8, 0);
 
   lgdt(c->gdt, sizeof(c->gdt));
-  loadgs(SEG_KCPU << 3);
   
-  // Initialize cpu-local storage.
-  cpu = c;
-  proc = 0;
+  set_curr_proc(0);
 }
 
 // Return the address of the PTE in page table pgdir
@@ -164,11 +161,13 @@ switchkvm(void)
 void
 switchuvm(struct proc *p)
 {
+  struct cpu *cpu;
   pushcli();
+  cpu = ccpu;
   cpu->gdt[SEG_TSS] = SEG16(STS_T32A, &cpu->ts, sizeof(cpu->ts)-1, 0);
   cpu->gdt[SEG_TSS].s = 0;
   cpu->ts.ss0 = SEG_KDATA << 3;
-  cpu->ts.esp0 = (uint)proc->kstack + KSTACKSIZE;
+  cpu->ts.esp0 = (uint)cproc->kstack + KSTACKSIZE;
   ltr(SEG_TSS << 3);
   if(p->pgdir == 0)
     panic("switchuvm: no pgdir");
