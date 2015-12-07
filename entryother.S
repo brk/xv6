@@ -22,8 +22,8 @@
 #   - it uses the address at start-4, start-8, and start-12
 
 .code16           
-.globl start
-start:
+.globl startother
+startother:
   cli            
 
   xorw    %ax,%ax
@@ -37,10 +37,10 @@ start:
   movl    %eax, %cr0
 
 //PAGEBREAK!
-  ljmpl    $(SEG_KCODE<<3), $(start32)
+  ljmpl    $(SEG_KCODE<<3), $(startother32)
 
 .code32
-start32:
+startother32:
   movw    $(SEG_KDATA<<3), %ax
   movw    %ax, %ds
   movw    %ax, %es
@@ -54,7 +54,7 @@ start32:
   orl     $(CR4_PSE), %eax
   movl    %eax, %cr4
   # Use enterpgdir as our initial page table
-  movl    (start-12), %eax
+  movl    (startother-12), %eax
   movl    %eax, %cr3
   # Turn on paging.
   movl    %cr0, %eax
@@ -62,9 +62,9 @@ start32:
   movl    %eax, %cr0
 
   # Switch to the stack allocated by startothers()
-  movl    (start-4), %esp
+  movl    (startother-4), %esp
   # Call mpenter()
-  call	 *(start-8)
+  call	 *(startother-8)
 
   movw    $0x8a00, %ax
   movw    %ax, %dx

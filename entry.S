@@ -30,11 +30,11 @@ multiboot_header:
   .long flags
   .long (-magic-flags)
 
-# By convention, the _start symbol specifies the ELF entry point.
+# We tell the linker to use _xv6_start as the ELF entry point.
 # Since we haven't set up virtual memory yet, our entry point is
 # the physical address of 'entry'.
-.globl _start
-_start = V2P_WO(entry)
+.globl _xv6_start
+_xv6_start = V2P_WO(entry)
 
 # Entering xv6 on boot processor, with paging off.
 .globl entry

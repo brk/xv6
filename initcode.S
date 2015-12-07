@@ -3,10 +3,12 @@
 #include "syscall.h"
 #include "traps.h"
 
+# proc.c copies this file's code and puts it in virtual memory address 0,
+# and begins executing the first bytes (regardless of symbol name, etc).
 
 # exec(init, argv)
-.globl start
-start:
+.globl init_start
+init_start:
   pushl $argv
   pushl $init
   pushl $0  // where caller pc would be

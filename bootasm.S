@@ -8,8 +8,8 @@
 # with %cs=0 %ip=7c00.
 
 .code16                       # Assemble for 16-bit mode
-.globl start
-start:
+.globl bootstart
+bootstart:
   cli                         # BIOS enabled interrupts; disable
 
   # Zero data segment registers DS, ES, and SS.
@@ -48,10 +48,10 @@ seta20.2:
   # Complete transition to 32-bit protected mode by using long jmp
   # to reload %cs and %eip.  The segment descriptors are set up with no
   # translation, so that the mapping is still the identity mapping.
-  ljmp    $(SEG_KCODE<<3), $start32
+  ljmp    $(SEG_KCODE<<3), $bootstart32
 
 .code32  # Tell assembler to generate 32-bit code now.
-start32:
+bootstart32:
   # Set up the protected-mode data segment registers
   movw    $(SEG_KDATA<<3), %ax    # Our data segment selector
   movw    %ax, %ds                # -> DS: Data Segment
@@ -62,7 +62,7 @@ start32:
   movw    %ax, %gs                # -> GS
 
   # Set up the stack pointer and call into C.
-  movl    $start, %esp
+  movl    $bootstart, %esp
   call    bootmain
 
   # If bootmain returns (it shouldn't), trigger a Bochs
