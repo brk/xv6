@@ -1,0 +1,4 @@
+default 0
+timeout 6
+title xv6test
+kernel /boot/kernelmemfs
